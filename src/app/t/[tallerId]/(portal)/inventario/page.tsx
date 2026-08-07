@@ -1,0 +1,7 @@
+import { InventarioPanel } from "@/components/gestion/inventario-panel";
+
+export default async function InventarioPage({ params }: { params: Promise<{ tallerId: string }> }) {
+  const { tallerId } = await params;
+  return <InventarioPanel tallerId={tallerId} />;
+}
+
