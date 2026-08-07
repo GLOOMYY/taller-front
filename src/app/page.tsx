@@ -1,69 +1,59 @@
-import Image from "next/image";
+import { ArrowRight, CheckCircle2, ClipboardCheck, PackageCheck, ShieldCheck } from "lucide-react";
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { Logo } from "@/components/ui/logo";
+import { ThemeSwitcher } from "@/components/ui/theme-switcher";
+import { auth0, auth0Configured } from "@/lib/auth0";
 
-export default function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function Home() {
+  const session = auth0Configured ? await auth0.getSession() : null;
+  if (session) redirect("/seleccionar-taller");
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert h-5 w-[100px]"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the{" "}
-            <code className="rounded bg-black/[.06] px-1.5 py-0.5 font-mono text-[0.9em] dark:bg-white/[.08]">
-              page.tsx
-            </code>{" "}
-            file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
+    <main className="landing-shell">
+      <nav className="landing-nav" aria-label="Navegación principal">
+        <Logo />
+        <div className="flex items-center gap-2">
+          <ThemeSwitcher compact />
+          <a className="button button-secondary hidden sm:inline-flex" href="/auth/login">Ingresar</a>
         </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert h-[14px] w-4"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+      </nav>
+      <section className="landing-hero">
+        <div className="max-w-2xl">
+          <span className="eyebrow"><span className="status-dot" /> Operación simple para talleres ágiles</span>
+          <h1>Tu taller, en orden.<br /><span>Tu equipo, en movimiento.</span></h1>
+          <p>Controla cada orden, repuesto y pago sin perder el hilo. Tus técnicos avanzan; tus clientes saben qué está pasando.</p>
+          <div className="mt-8 flex flex-wrap gap-3">
+            <a className="button button-primary" href="/auth/login?screen_hint=signup">Crear mi taller <ArrowRight size={17} /></a>
+            {!auth0Configured && <Link className="button button-secondary" href="/t/demo/inicio">Explorar demo</Link>}
+          </div>
+          <div className="landing-trust"><ShieldCheck size={16} /> Sesión segura · datos separados por taller · sin tarjetas para empezar</div>
         </div>
-      </main>
-    </div>
+        <div className="hero-board" aria-label="Vista previa del portal">
+          <div className="hero-board-head"><div><span>Hoy en el taller</span><strong>Todo bajo control</strong></div><span className="badge badge-success">En línea</span></div>
+          <div className="hero-metrics">
+            <div><ClipboardCheck /><small>Órdenes activas</small><strong>12</strong><span>3 listas para recoger</span></div>
+            <div><PackageCheck /><small>Stock por revisar</small><strong>4</strong><span>Repuestos bajo mínimo</span></div>
+          </div>
+          <div className="hero-list">
+            {[
+              ["OT-0248", "iPhone 13 · Cambio de pantalla", "En reparación"],
+              ["OT-0247", "Lenovo ThinkPad · No enciende", "Diagnóstico"],
+              ["OT-0245", "Samsung A54 · Puerto de carga", "Listo"],
+            ].map(([code, label, status], index) => (
+              <div key={code}><span className="hero-index">{index + 1}</span><span><strong>{code}</strong><small>{label}</small></span><em>{status}</em></div>
+            ))}
+          </div>
+          <div className="hero-progress"><span><CheckCircle2 size={15} /> 8 de 12 órdenes avanzaron hoy</span><b><i /></b></div>
+        </div>
+      </section>
+      <section className="landing-features" aria-label="Beneficios">
+        <article><span>01</span><h2>Una orden, toda la historia</h2><p>Diagnóstico, servicios, repuestos, pagos y comunicación sin saltar entre herramientas.</p></article>
+        <article><span>02</span><h2>Decisiones con datos reales</h2><p>Saldo, carga operativa y movimiento del día calculados por tu sistema, no por hojas sueltas.</p></article>
+        <article><span>03</span><h2>Clientes bien informados</h2><p>Seguimiento público seguro, con la información justa y comprobante al finalizar.</p></article>
+      </section>
+    </main>
   );
 }
