@@ -1,36 +1,38 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Taller Front
 
-## Getting Started
+Portal web de las fases 1 y 2 de Taller, construido con Next.js 16, React 19 y Tailwind 4. Incluye el portal privado para dueños y técnicos y el seguimiento público de cada reparación.
 
-First, run the development server:
+## Inicio local
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+cp .env.example .env.local
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Sin variables de Auth0 el proyecto inicia en modo demostración local. El botón **Explorar demo** abre un taller de muestra y `/seguimiento/demo` muestra el seguimiento público. En un entorno conectado configura una aplicación Auth0 de tipo Regular Web App, usa `http://localhost:3000/auth/callback` como callback y establece el audience de FastAPI en `AUTH0_AUDIENCE`.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+El frontend nunca entrega el access token al navegador: el SDK mantiene la sesión cifrada en cookie HttpOnly y el cliente API server-only añade `Authorization` a FastAPI. Todas las lecturas de tenant usan `cache: "no-store"`.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Contrato
 
-## Learn More
+`openapi/taller-api.json` es la instantánea versionada de FastAPI y `src/lib/api/schema.d.ts` contiene los tipos generados.
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+pnpm openapi:generate
+pnpm openapi:check
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Si cambia el backend, exporta primero su instantánea y copia el resultado a `openapi/taller-api.json`. CI falla cuando el tipo generado deriva de la instantánea.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Calidad
 
-## Deploy on Vercel
+```bash
+pnpm lint
+pnpm typecheck
+pnpm test
+pnpm build
+pnpm test:e2e
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Playwright cubre escritorio claro y móvil oscuro. Las pruebas ordinarias usan el modo demostración y no dependen de Auth0 ni de una red externa.
