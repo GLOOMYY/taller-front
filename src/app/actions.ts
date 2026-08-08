@@ -43,9 +43,20 @@ async function solicitarSesion(path: string, body: unknown) {
   }
   if (!response.ok) {
     const error = (await response.json().catch(() => undefined)) as
-      | { mensaje?: unknown }
+      | { mensaje?: unknown; detail?: unknown }
       | undefined;
-    const mensaje = typeof error?.mensaje === "string" ? error.mensaje : undefined;
+    const detalle =
+      typeof error?.detail === "string"
+        ? error.detail
+        : error?.detail && typeof error.detail === "object" && "mensaje" in error.detail
+          ? (error.detail as { mensaje?: unknown }).mensaje
+          : undefined;
+    const mensaje =
+      typeof error?.mensaje === "string"
+        ? error.mensaje
+        : typeof detalle === "string"
+          ? detalle
+          : undefined;
     throw new Error(
       mensaje ??
         (path.endsWith("/registro")
