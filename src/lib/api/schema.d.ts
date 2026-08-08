@@ -21,6 +21,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/api/v1/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login */
+        post: operations["login_api_v1_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/api/v1/auth/registro": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Registro */
+        post: operations["registro_api_v1_auth_registro_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/api/v1/publico/seguimiento/{token}": {
         parameters: {
             query?: never;
@@ -1279,6 +1313,13 @@ export interface components {
             /** Siguiente Cursor */
             siguiente_cursor: string | null;
         };
+        /** LoginEntrada */
+        LoginEntrada: {
+            /** Nombre Usuario */
+            nombre_usuario: string;
+            /** Password */
+            password: string;
+        };
         /**
          * MembresiaResponse
          * @description Representación pública sin detalles de MongoDB.
@@ -1652,6 +1693,15 @@ export interface components {
             /** Nombre Usuario */
             nombre_usuario: string;
         };
+        /** RegistroEntrada */
+        RegistroEntrada: {
+            /** Nombre */
+            nombre: string;
+            /** Nombre Usuario */
+            nombre_usuario: string;
+            /** Password */
+            password: string;
+        };
         /** RepuestoSalida */
         RepuestoSalida: {
             /** Activo */
@@ -1701,6 +1751,22 @@ export interface components {
          * @enum {string}
          */
         RolMembresia: "dueno" | "tecnico";
+        /** SesionSalida */
+        SesionSalida: {
+            /** Access Token */
+            access_token: string;
+            /** Nombre */
+            nombre: string;
+            /** Nombre Usuario */
+            nombre_usuario: string;
+            /**
+             * Token Type
+             * @default bearer
+             */
+            token_type: string;
+            /** Usuario Id */
+            usuario_id: string;
+        };
         /**
          * TallerCambio
          * @description Cambio parcial; país y moneda pueden modificarse siempre.
@@ -1841,6 +1907,162 @@ export interface operations {
                     "application/json": {
                         [key: string]: string;
                     };
+                };
+            };
+            /** @description Solicitud inválida */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description No autenticado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Acceso prohibido */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Recurso no encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Conflicto de negocio */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Entrada inválida */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+        };
+    };
+    login_api_v1_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SesionSalida"];
+                };
+            };
+            /** @description Solicitud inválida */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description No autenticado */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Acceso prohibido */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Recurso no encontrado */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Conflicto de negocio */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+            /** @description Entrada inválida */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ErrorSalida"];
+                };
+            };
+        };
+    };
+    registro_api_v1_auth_registro_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegistroEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SesionSalida"];
                 };
             };
             /** @description Solicitud inválida */

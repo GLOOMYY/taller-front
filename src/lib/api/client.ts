@@ -1,6 +1,6 @@
 import "server-only";
 
-import { auth0, auth0Configured } from "@/lib/auth0";
+import { getAccessToken } from "@/lib/auth";
 import { errorFromResponse } from "./errors";
 
 const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
@@ -13,8 +13,8 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
   headers.set("X-Correlation-ID", crypto.randomUUID());
 
   if (!options.public) {
-    if (!auth0Configured) throw new Error("Auth0 no está configurado");
-    const { token } = await auth0.getAccessToken();
+    const token = await getAccessToken();
+    if (!token) throw new Error("Sesión requerida");
     headers.set("Authorization", `Bearer ${token}`);
   }
   if (options.body !== undefined) headers.set("Content-Type", "application/json");

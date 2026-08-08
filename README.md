@@ -10,9 +10,9 @@ pnpm install
 pnpm dev
 ```
 
-Sin variables de Auth0 el proyecto inicia en modo demostración local. El botón **Explorar demo** abre un taller de muestra y `/seguimiento/demo` muestra el seguimiento público. En un entorno conectado configura una aplicación Auth0 de tipo Regular Web App, usa `http://localhost:3000/auth/callback` como callback y establece el audience de FastAPI en `AUTH0_AUDIENCE`.
+Sin variables adicionales el proyecto inicia en modo demostración local. El botón **Explorar demo** abre un taller de muestra y `/seguimiento/demo` muestra el seguimiento público. El login real usa JWT propios emitidos por FastAPI; el token se guarda únicamente en una cookie HttpOnly del frontend.
 
-El frontend nunca entrega el access token al navegador: el SDK mantiene la sesión cifrada en cookie HttpOnly y el cliente API server-only añade `Authorization` a FastAPI. Todas las lecturas de tenant usan `cache: "no-store"`.
+El frontend nunca entrega el JWT a JavaScript: la sesión se guarda en una cookie HttpOnly y el cliente API server-only añade `Authorization` a FastAPI. Todas las lecturas de tenant usan `cache: "no-store"`.
 
 ## Contrato
 
@@ -35,4 +35,4 @@ pnpm build
 pnpm test:e2e
 ```
 
-Playwright cubre escritorio claro y móvil oscuro. Las pruebas ordinarias usan el modo demostración y no dependen de Auth0 ni de una red externa.
+Playwright cubre escritorio claro y móvil oscuro. Las pruebas ordinarias usan el modo demostración y no dependen de un proveedor externo ni de una red externa.

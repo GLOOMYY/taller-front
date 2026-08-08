@@ -3,13 +3,12 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Logo } from "@/components/ui/logo";
 import { ThemeSwitcher } from "@/components/ui/theme-switcher";
-import { auth0, auth0Configured } from "@/lib/auth0";
+import { getAccessToken } from "@/lib/auth";
 
 export const dynamic = "force-dynamic";
 
 export default async function Home() {
-  const session = auth0Configured ? await auth0.getSession() : null;
-  if (session) redirect("/seleccionar-taller");
+  if (await getAccessToken()) redirect("/seleccionar-taller");
 
   return (
     <main className="landing-shell">
@@ -27,7 +26,7 @@ export default async function Home() {
           <p>Controla cada orden, repuesto y pago sin perder el hilo. Tus técnicos avanzan; tus clientes saben qué está pasando.</p>
           <div className="mt-8 flex flex-wrap gap-3">
             <a className="button button-primary" href="/auth/login?screen_hint=signup">Crear mi taller <ArrowRight size={17} /></a>
-            {!auth0Configured && <Link className="button button-secondary" href="/t/demo/inicio">Explorar demo</Link>}
+            <Link className="button button-secondary" href="/t/demo/inicio">Explorar demo</Link>
           </div>
           <div className="landing-trust"><ShieldCheck size={16} /> Sesión segura · datos separados por taller · sin tarjetas para empezar</div>
         </div>

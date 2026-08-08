@@ -5,7 +5,7 @@ import type {
 } from "@/lib/operacion-modelos";
 import { api } from "@/lib/api/client";
 import type { components } from "@/lib/api/schema";
-import { auth0Configured } from "@/lib/auth0";
+import { getAccessToken } from "@/lib/auth";
 
 type ApiOrden = components["schemas"]["OrdenSalida"];
 type ApiPaginaOrdenes = components["schemas"]["PaginaOrdenesSalida"];
@@ -170,7 +170,7 @@ export async function obtenerResumenOperativo(
   tallerId: string,
   periodoDias = 30,
 ): Promise<ResumenOperativo> {
-  if (auth0Configured) {
+  if (await getAccessToken()) {
     const base = `/api/v1/talleres/${encodeURIComponent(tallerId)}`;
     const [resumen, abiertas, recogida] = await Promise.all([
       api.get<ApiResumen>(`${base}/resumen-operativo?periodo_dias=${periodoDias}`),
@@ -235,7 +235,7 @@ export async function obtenerResumenOperativo(
 }
 
 export async function listarOrdenes(tallerId: string): Promise<OrdenResumen[]> {
-  if (auth0Configured) {
+  if (await getAccessToken()) {
     const pagina = await api.get<ApiPaginaOrdenes>(`/api/v1/talleres/${encodeURIComponent(tallerId)}/ordenes?limite=100`);
     return pagina.items.map(mapearOrden);
   }
@@ -246,7 +246,7 @@ export async function obtenerOrden(
   tallerId: string,
   ordenId: string,
 ): Promise<OrdenDetalle | null> {
-  if (auth0Configured) {
+  if (await getAccessToken()) {
     const orden = await api.get<ApiOrden>(`/api/v1/talleres/${encodeURIComponent(tallerId)}/ordenes/${encodeURIComponent(ordenId)}`);
     const resumen = mapearOrden(orden);
     return {
