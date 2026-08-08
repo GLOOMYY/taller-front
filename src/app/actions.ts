@@ -7,6 +7,7 @@ import { api } from "@/lib/api/client";
 import type { Taller, Usuario } from "@/lib/api/contracts";
 import { clearAccessToken, getAccessToken, saveAccessToken } from "@/lib/auth";
 import { requirePortalSession } from "@/lib/portal";
+import { getApiUrl } from "@/lib/api/config";
 
 const perfilSchema = z.object({
   nombre: z.string().trim().min(2, "Escribe tu nombre").max(100),
@@ -29,9 +30,17 @@ const registroSchema = credencialesSchema.extend({
 });
 
 async function solicitarSesion(path: string, body: unknown) {
-  const response = await fetch(`${process.env.API_URL ?? "http://127.0.0.1:8000"}${path}`, {
-    method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body), cache: "no-store",
-  });
+  let response: Response;
+  try {
+    response = await fetch(`${getApiUrl()}${path}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+      cache: "no-store",
+    });
+  } catch {
+    throw new Error("No se pudo conectar con el backend. Revisa API_URL en producción.");
+  }
   if (!response.ok) throw new Error("No pudimos iniciar sesión. Revisa tus datos.");
   const data = (await response.json()) as { access_token: string };
   await saveAccessToken(data.access_token);

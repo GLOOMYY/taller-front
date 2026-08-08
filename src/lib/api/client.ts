@@ -2,8 +2,7 @@ import "server-only";
 
 import { getAccessToken } from "@/lib/auth";
 import { errorFromResponse } from "./errors";
-
-const API_URL = process.env.API_URL ?? "http://127.0.0.1:8000";
+import { getApiUrl } from "./config";
 
 type ApiOptions = Omit<RequestInit, "body"> & { body?: unknown; public?: boolean };
 
@@ -19,7 +18,7 @@ export async function apiFetch<T>(path: string, options: ApiOptions = {}): Promi
   }
   if (options.body !== undefined) headers.set("Content-Type", "application/json");
 
-  const response = await fetch(`${API_URL}${path}`, {
+  const response = await fetch(`${getApiUrl()}${path}`, {
     ...options,
     headers,
     body: options.body === undefined ? undefined : JSON.stringify(options.body),
