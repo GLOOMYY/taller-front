@@ -5,7 +5,7 @@ import type { Proveedor } from "./types";
 import { EmptyState, Icon, Modal, PageHeading, Panel, PrimaryButton, SearchField, SecondaryButton, fieldClass, labelClass } from "./ui";
 
 const proveedoresIniciales: Proveedor[] = [
-  { id: "pro-1", nombre: "TecnoPartes Colombia", identificacion: "901.224.810-3", contacto: "Diana Cárdenas", telefono: "+57 320 410 8821", correo: "ventas@tecnopartes.co", ciudad: "Bogotá", activo: true, repuestos: 24, ultimaEntrada: "6 ago 2026" },
+  { id: "pro-1", nombre: "TecnoPartes Colombia", identificacion: "901.224.810-3", contacto: "Isabella Cárdenas", telefono: "+57 320 410 8821", correo: "ventas@tecnopartes.co", ciudad: "Bogotá", activo: true, repuestos: 24, ultimaEntrada: "6 ago 2026" },
   { id: "pro-2", nombre: "Mundo Móvil SAS", identificacion: "900.811.020-7", contacto: "Felipe Torres", telefono: "+57 316 300 5520", correo: "pedidos@mundomovil.co", ciudad: "Medellín", activo: true, repuestos: 18, ultimaEntrada: "2 ago 2026" },
   { id: "pro-3", nombre: "CompuSupply", identificacion: "830.123.772-1", contacto: "Isabella G", telefono: "+57 601 518 3009", correo: "comercial@compusupply.com", ciudad: "Bogotá", activo: true, repuestos: 11, ultimaEntrada: "18 jul 2026" },
   { id: "pro-4", nombre: "Importaciones Nova", identificacion: "901.018.442-8", contacto: "Andrés León", telefono: "+57 300 991 4100", ciudad: "Cali", activo: false, repuestos: 4, ultimaEntrada: "9 feb 2026" },
@@ -31,4 +31,3 @@ export function ProveedoresPanel({ tallerId, initialProveedores = proveedoresIni
     {confirmar && seleccionado && <Modal title={seleccionado.activo ? "Desactivar proveedor" : "Reactivar proveedor"} description={seleccionado.activo ? "Dejará de aparecer en selecciones nuevas, pero conservarás su historial." : "Volverá a estar disponible para entradas y repuestos."} onClose={() => setConfirmar(false)}><div className="flex justify-end gap-2"><SecondaryButton onClick={() => setConfirmar(false)}>Cancelar</SecondaryButton><PrimaryButton onClick={alternarEstado}>Confirmar</PrimaryButton></div></Modal>}
     <p className="sr-only">Taller activo: {tallerId}</p></div>;
 }
-

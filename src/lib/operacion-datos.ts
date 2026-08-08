@@ -62,7 +62,7 @@ const ordenes: OrdenResumen[] = [
   {
     id: "ord-1046",
     numero: "OT-1046",
-    cliente: "Lucía Fernández",
+    cliente: "Isabella Fernández",
     equipo: "MacBook Air M2",
     referenciaEquipo: "Apple · Medianoche",
     estado: "esperando_aprobacion",
@@ -88,7 +88,7 @@ const ordenes: OrdenResumen[] = [
   {
     id: "ord-1044",
     numero: "OT-1044",
-    cliente: "Sofía Castro",
+    cliente: "Isabella Castro",
     equipo: "iPad Air",
     referenciaEquipo: "Apple · Azul",
     estado: "entregado",

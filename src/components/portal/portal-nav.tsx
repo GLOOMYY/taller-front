@@ -35,7 +35,7 @@ export function PortalNav({ tallerId, tallerNombre, rol }: { tallerId: string; t
         })}
       </nav>
       <div className="portal-nav-footer">
-        <Link href="/perfil" className="profile-chip"><span>ML</span><span><strong>Isabella López</strong><small>{rol === "dueno" ? "Dueña" : "Técnico"}</small></span><ChevronDown size={15} /></Link>
+        <Link href="/perfil" className="profile-chip"><span>IL</span><span><strong>Isabella López</strong><small>{rol === "dueno" ? "Dueña" : "Técnico"}</small></span><ChevronDown size={15} /></Link>
         <a className="logout-link" href="/auth/logout">Cerrar sesión</a>
       </div>
     </>
