@@ -14,6 +14,8 @@ Para probar registro y login reales, inicia antes el backend en
 `../taller-back`: copia su `.env`, levanta Docker Compose y ejecuta
 `uvicorn app.main:app --reload`. El frontend local usa
 `API_URL=http://127.0.0.1:8000`; el modo demo sigue funcionando sin backend.
+Antes de crear el primer taller, ejecuta `curl http://127.0.0.1:8000/health/ready`
+para sincronizar países, monedas e índices en MongoDB.
 
 Sin variables adicionales el proyecto inicia en modo demostración local. El botón **Explorar demo** abre un taller de muestra y `/seguimiento/demo` muestra el seguimiento público. El login real usa JWT propios emitidos por FastAPI; el token se guarda únicamente en una cookie HttpOnly del frontend.
 
