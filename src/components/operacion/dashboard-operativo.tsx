@@ -73,7 +73,7 @@ export function DashboardOperativo({ tallerId, resumen }: { tallerId: string; re
     <div className="mx-auto w-full max-w-[1500px] space-y-7 px-4 py-6 sm:px-6 lg:px-8 lg:py-8">
       <EncabezadoPagina
         ceja="Resumen operativo"
-        titulo="Buenos días, Laura"
+        titulo="Buenos días, Isabella"
         descripcion="Esto es lo que está pasando hoy en el taller."
         acciones={<>
           <nav aria-label="Periodo del resumen" className="flex rounded-xl border border-stone-200 bg-white p-1 shadow-sm dark:border-stone-800 dark:bg-stone-900">

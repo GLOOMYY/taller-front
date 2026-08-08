@@ -15,8 +15,8 @@ const repuestosIniciales: Repuesto[] = [
 
 const movimientosIniciales: MovimientoInventario[] = [
   { id: "mov-1", fecha: "Hoy, 09:42", repuesto: "Pantalla OLED Galaxy S23 negra", tipo: "salida", cantidad: -1, referencia: "OT-1052", responsable: "Mateo R." },
-  { id: "mov-2", fecha: "Ayer, 16:18", repuesto: "SSD NVMe 1 TB", tipo: "entrada", cantidad: 5, referencia: "Entrada #028", responsable: "Laura M." },
-  { id: "mov-3", fecha: "5 ago, 11:07", repuesto: "Batería compatible iPhone 14", tipo: "ajuste", cantidad: -1, referencia: "Conteo físico", responsable: "Laura M." },
+  { id: "mov-2", fecha: "Ayer, 16:18", repuesto: "SSD NVMe 1 TB", tipo: "entrada", cantidad: 5, referencia: "Entrada #028", responsable: "Isabella G" },
+  { id: "mov-3", fecha: "5 ago, 11:07", repuesto: "Batería compatible iPhone 14", tipo: "ajuste", cantidad: -1, referencia: "Conteo físico", responsable: "Isabella G" },
 ];
 
 export function InventarioPanel({ tallerId, initialRepuestos = repuestosIniciales, initialMovimientos = movimientosIniciales }: { tallerId: string; initialRepuestos?: Repuesto[]; initialMovimientos?: MovimientoInventario[] }) {

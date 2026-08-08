@@ -7,7 +7,7 @@ import { EmptyState, Icon, Modal, PageHeading, Panel, PrimaryButton, SearchField
 const proveedoresIniciales: Proveedor[] = [
   { id: "pro-1", nombre: "TecnoPartes Colombia", identificacion: "901.224.810-3", contacto: "Diana Cárdenas", telefono: "+57 320 410 8821", correo: "ventas@tecnopartes.co", ciudad: "Bogotá", activo: true, repuestos: 24, ultimaEntrada: "6 ago 2026" },
   { id: "pro-2", nombre: "Mundo Móvil SAS", identificacion: "900.811.020-7", contacto: "Felipe Torres", telefono: "+57 316 300 5520", correo: "pedidos@mundomovil.co", ciudad: "Medellín", activo: true, repuestos: 18, ultimaEntrada: "2 ago 2026" },
-  { id: "pro-3", nombre: "CompuSupply", identificacion: "830.123.772-1", contacto: "Laura Beltrán", telefono: "+57 601 518 3009", correo: "comercial@compusupply.com", ciudad: "Bogotá", activo: true, repuestos: 11, ultimaEntrada: "18 jul 2026" },
+  { id: "pro-3", nombre: "CompuSupply", identificacion: "830.123.772-1", contacto: "Isabella G", telefono: "+57 601 518 3009", correo: "comercial@compusupply.com", ciudad: "Bogotá", activo: true, repuestos: 11, ultimaEntrada: "18 jul 2026" },
   { id: "pro-4", nombre: "Importaciones Nova", identificacion: "901.018.442-8", contacto: "Andrés León", telefono: "+57 300 991 4100", ciudad: "Cali", activo: false, repuestos: 4, ultimaEntrada: "9 feb 2026" },
 ];
 
