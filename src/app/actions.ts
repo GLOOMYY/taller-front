@@ -41,7 +41,18 @@ async function solicitarSesion(path: string, body: unknown) {
   } catch {
     throw new Error("No se pudo conectar con el backend. Revisa API_URL en producción.");
   }
-  if (!response.ok) throw new Error("No pudimos iniciar sesión. Revisa tus datos.");
+  if (!response.ok) {
+    const error = (await response.json().catch(() => undefined)) as
+      | { mensaje?: unknown }
+      | undefined;
+    const mensaje = typeof error?.mensaje === "string" ? error.mensaje : undefined;
+    throw new Error(
+      mensaje ??
+        (path.endsWith("/registro")
+          ? "No pudimos crear la cuenta. Revisa los datos."
+          : "No pudimos iniciar sesión. Revisa tus datos."),
+    );
+  }
   const data = (await response.json()) as { access_token: string };
   await saveAccessToken(data.access_token);
 }
