@@ -14,7 +14,7 @@ export const demoTaller: Taller = {
 
 export async function requirePortalSession() {
   const token = await getAccessToken();
-  if (!token) return { user: { name: "Mariana López", email: "mariana@tallernorte.co" } };
+  if (!token) return { user: { name: "Isabella López", email: "Isabella@tallernorte.co" } };
   return { user: { name: "Usuario Taller", email: "" } };
 }
 
@@ -33,6 +33,6 @@ export async function getTalleres(): Promise<Taller[]> {
 
 export async function getUsuario(): Promise<Usuario | null> {
   await requirePortalSession();
-  if (!(await getAccessToken())) return { id: "demo-user", nombre: "Mariana López", nombre_usuario: "mariana" };
+  if (!(await getAccessToken())) return { id: "demo-user", nombre: "Isabella López", nombre_usuario: "Isabella" };
   try { return await api.get<Usuario>("/api/v1/usuarios/me"); } catch { return null; }
 }

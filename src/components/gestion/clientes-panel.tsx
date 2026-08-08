@@ -5,7 +5,7 @@ import type { Cliente, Dispositivo, OrdenBreve } from "./types";
 import { EmptyState, Icon, Modal, PageHeading, Panel, PrimaryButton, SearchField, SecondaryButton, fieldClass, labelClass } from "./ui";
 
 const clientesIniciales: Cliente[] = [
-  { id: "cli-1", nombre: "Mariana Ríos", documento: "1032456789", telefono: "+57 301 555 0184", correo: "mariana.rios@email.com", activo: true, ordenes: 4, ultimaVisita: "5 ago 2026", equipos: [{ id: "eq-1", tipo: "Celular", marca: "Apple", modelo: "iPhone 14", serie: "F2LX92K1", alias: "Personal" }, { id: "eq-2", tipo: "Portátil", marca: "Lenovo", modelo: "ThinkPad E14", serie: "PF4K91D2" }] },
+  { id: "cli-1", nombre: "Isabella Ríos", documento: "1032456789", telefono: "+57 301 555 0184", correo: "Isabella.rios@email.com", activo: true, ordenes: 4, ultimaVisita: "5 ago 2026", equipos: [{ id: "eq-1", tipo: "Celular", marca: "Apple", modelo: "iPhone 14", serie: "F2LX92K1", alias: "Personal" }, { id: "eq-2", tipo: "Portátil", marca: "Lenovo", modelo: "ThinkPad E14", serie: "PF4K91D2" }] },
   { id: "cli-2", nombre: "Carlos Mendoza", documento: "80123456", telefono: "+57 315 210 9901", correo: "c.mendoza@email.com", activo: true, ordenes: 2, ultimaVisita: "31 jul 2026", equipos: [{ id: "eq-3", tipo: "Tablet", marca: "Samsung", modelo: "Galaxy Tab S9", serie: "R52W30" }] },
   { id: "cli-3", nombre: "Inversiones Salazar SAS", documento: "901482003-1", telefono: "+57 601 742 1180", correo: "soporte@salazar.co", activo: true, ordenes: 8, ultimaVisita: "28 jul 2026", equipos: [{ id: "eq-4", tipo: "Portátil", marca: "Dell", modelo: "Latitude 5440", alias: "Administración" }] },
   { id: "cli-4", nombre: "Andrea Peña", telefono: "+57 310 904 7712", activo: false, ordenes: 1, ultimaVisita: "12 mar 2026", equipos: [] },

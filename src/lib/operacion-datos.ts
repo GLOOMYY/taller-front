@@ -36,7 +36,7 @@ const ordenes: OrdenResumen[] = [
   {
     id: "ord-1048",
     numero: "OT-1048",
-    cliente: "Mariana Gómez",
+    cliente: "Isabella Gómez",
     equipo: "iPhone 14 Pro",
     referenciaEquipo: "Apple · Morado oscuro",
     estado: "en_reparacion",
@@ -103,7 +103,7 @@ const ordenes: OrdenResumen[] = [
 const detalleBase: OrdenDetalle = {
   ...ordenes[0],
   telefonoCliente: "+57 310 555 0147",
-  correoCliente: "mariana.gomez@ejemplo.com",
+  correoCliente: "Isabella.gomez@ejemplo.com",
   serial: "DNPQ72L9K7",
   accesorios: "Equipo sin cargador, con funda transparente.",
   diagnostico:
