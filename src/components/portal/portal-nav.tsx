@@ -19,9 +19,10 @@ const items = [
   { href: "configuracion", label: "Configuración", icon: Settings },
 ];
 
-export function PortalNav({ tallerId, tallerNombre, rol }: { tallerId: string; tallerNombre: string; rol: RolTaller }) {
+export function PortalNav({ tallerId, tallerNombre, rol, nombreUsuario }: { tallerId: string; tallerNombre: string; rol: RolTaller; nombreUsuario: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const iniciales = nombreUsuario.split(/\s+/).filter(Boolean).slice(0, 2).map((parte) => parte[0]?.toUpperCase()).join("") || "U";
 
   const content = (
     <>
@@ -35,7 +36,7 @@ export function PortalNav({ tallerId, tallerNombre, rol }: { tallerId: string; t
         })}
       </nav>
       <div className="portal-nav-footer">
-        <Link href="/perfil" className="profile-chip"><span>IL</span><span><strong>Isabella López</strong><small>{rol === "dueno" ? "Dueña" : "Técnico"}</small></span><ChevronDown size={15} /></Link>
+        <Link href="/perfil" className="profile-chip"><span>{iniciales}</span><span><strong>{nombreUsuario}</strong><small>{rol === "dueno" ? "Dueño" : "Técnico"}</small></span><ChevronDown size={15} /></Link>
         <a className="logout-link" href="/auth/logout">Cerrar sesión</a>
       </div>
     </>
