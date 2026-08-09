@@ -34,8 +34,12 @@ export function InventarioPanel({ tallerId, initialRepuestos = repuestosIniciale
   async function crearRepuesto(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const data = new FormData(event.currentTarget);
     const sku = String(data.get("sku")); const nombre = String(data.get("nombre")); const categoria = String(data.get("categoria"));
+    const existenciaInicial = Number(data.get("existencia"));
     const remoto = tallerId === "demo" ? null : await crearRepuestoReal(tallerId, { codigo: sku || null, nombre, descripcion: categoria || null, precio_venta: "0" });
-    const nuevo: Repuesto = { id: remoto?.id ?? `rep-${Date.now()}`, sku: remoto?.codigo ?? sku, nombre: remoto?.nombre ?? nombre, categoria, existencia: remoto?.existencia ?? Number(data.get("existencia")), minimo: Number(data.get("minimo")), unidad: String(data.get("unidad")), ubicacion: String(data.get("ubicacion") || ""), activo: remoto?.activo ?? true };
+    if (remoto && existenciaInicial > 0) {
+      await registrarEntradaReal(tallerId, remoto.id, { cantidad: existenciaInicial, costo_unitario: "0", nota: "Existencia inicial" });
+    }
+    const nuevo: Repuesto = { id: remoto?.id ?? `rep-${Date.now()}`, sku: remoto?.codigo ?? sku, nombre: remoto?.nombre ?? nombre, categoria, existencia: remoto ? remoto.existencia + existenciaInicial : existenciaInicial, minimo: Number(data.get("minimo")), unidad: String(data.get("unidad")), ubicacion: String(data.get("ubicacion") || ""), activo: remoto?.activo ?? true };
     setRepuestos((items) => [nuevo, ...items]); setModal(null); setAviso("Repuesto creado y disponible para nuevas órdenes.");
   }
 

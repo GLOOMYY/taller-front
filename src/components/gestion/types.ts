@@ -19,12 +19,15 @@ export type Cliente = {
 
 export type Dispositivo = {
   id: string;
+  modeloId?: string;
   tipo: string;
   marca: string;
   modelo: string;
   serie?: string;
   alias?: string;
 };
+
+export type ModeloOpcion = { id: string; nombre: string; marca: string; tipo: string };
 
 export type OrdenBreve = {
   id: string;
@@ -70,4 +73,3 @@ export type Proveedor = {
 };
 
 export type RolTaller = "dueno" | "tecnico";
-

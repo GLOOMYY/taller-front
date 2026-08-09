@@ -1,9 +1,9 @@
 "use client";
 
 import { FormEvent, useMemo, useState } from "react";
-import type { Cliente, Dispositivo, OrdenBreve } from "./types";
+import type { Cliente, Dispositivo, ModeloOpcion, OrdenBreve } from "./types";
 import { EmptyState, Icon, Modal, PageHeading, Panel, PrimaryButton, SearchField, SecondaryButton, fieldClass, labelClass } from "./ui";
-import { crearClienteReal } from "@/app/gestion-actions";
+import { crearClienteReal, crearDispositivoReal, editarDispositivoReal } from "@/app/gestion-actions";
 
 const clientesIniciales: Cliente[] = [
   { id: "cli-1", nombre: "Isabella Ríos", documento: "1032456789", telefono: "+57 301 555 0184", correo: "Isabella.rios@email.com", activo: true, ordenes: 4, ultimaVisita: "5 ago 2026", equipos: [{ id: "eq-1", tipo: "Celular", marca: "Apple", modelo: "iPhone 14", serie: "F2LX92K1", alias: "Personal" }, { id: "eq-2", tipo: "Portátil", marca: "Lenovo", modelo: "ThinkPad E14", serie: "PF4K91D2" }] },
@@ -20,12 +20,13 @@ const historial: OrdenBreve[] = [
 
 const estadoLabel: Record<OrdenBreve["estado"], string> = { recibido: "Recibida", diagnostico: "Diagnóstico", reparacion: "En reparación", listo: "Lista para recoger", entregado: "Entregada" };
 
-export function ClientesPanel({ tallerId, initialClientes = clientesIniciales }: { tallerId: string; initialClientes?: Cliente[] }) {
+export function ClientesPanel({ tallerId, initialClientes = clientesIniciales, modelos = [] }: { tallerId: string; initialClientes?: Cliente[]; modelos?: ModeloOpcion[] }) {
   const [clientes, setClientes] = useState(initialClientes);
   const [consulta, setConsulta] = useState("");
   const [soloActivos, setSoloActivos] = useState(true);
   const [seleccionadoId, setSeleccionadoId] = useState(initialClientes[0]?.id ?? "");
   const [modal, setModal] = useState<"cliente" | "equipo" | null>(null);
+  const [equipoEditando, setEquipoEditando] = useState<Dispositivo | null>(null);
   const [aviso, setAviso] = useState("");
 
   const filtrados = useMemo(() => clientes.filter((cliente) => {
@@ -33,6 +34,8 @@ export function ClientesPanel({ tallerId, initialClientes = clientesIniciales }:
     return texto.includes(consulta.toLowerCase()) && (!soloActivos || cliente.activo);
   }), [clientes, consulta, soloActivos]);
   const seleccionado = clientes.find((cliente) => cliente.id === seleccionadoId);
+  const historialVisible = tallerId === "demo" ? historial : [];
+  const modelosFormulario = modelos.length ? modelos : [{ id: "demo-modelo", nombre: "Equipo", marca: "Genérica", tipo: "Otro" }];
 
   async function crearCliente(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -48,15 +51,25 @@ export function ClientesPanel({ tallerId, initialClientes = clientesIniciales }:
     setAviso("Cliente creado. Ya puedes registrar su primer equipo.");
   }
 
-  function crearEquipo(event: FormEvent<HTMLFormElement>) {
+  async function guardarEquipo(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!seleccionado) return;
     const data = new FormData(event.currentTarget);
-    const equipo: Dispositivo = { id: `eq-${Date.now()}`, tipo: String(data.get("tipo")), marca: String(data.get("marca")), modelo: String(data.get("modelo")), serie: String(data.get("serie") || ""), alias: String(data.get("alias") || "") };
-    setClientes((actuales) => actuales.map((cliente) => cliente.id === seleccionado.id ? { ...cliente, equipos: [...cliente.equipos, equipo] } : cliente));
+    const modeloId = String(data.get("modelo_id") || "");
+    const modelo = modelosFormulario.find((item) => item.id === modeloId);
+    const payload = { modelo_id: modeloId, identificador: String(data.get("serie") || "") || null, notas: String(data.get("alias") || "") || null };
+    const remoto = tallerId === "demo" ? null : equipoEditando
+      ? await editarDispositivoReal(tallerId, equipoEditando.id, payload)
+      : await crearDispositivoReal(tallerId, seleccionado.id, payload);
+    const equipo: Dispositivo = { id: remoto?.id ?? equipoEditando?.id ?? `eq-local-${seleccionado.equipos.length + 1}`, modeloId: remoto?.modelo_id ?? modeloId, tipo: modelo?.tipo ?? equipoEditando?.tipo ?? "", marca: modelo?.marca ?? equipoEditando?.marca ?? "", modelo: modelo?.nombre ?? equipoEditando?.modelo ?? "", serie: remoto?.identificador ?? payload.identificador ?? "", alias: remoto?.notas ?? payload.notas ?? "" };
+    setClientes((actuales) => actuales.map((cliente) => cliente.id === seleccionado.id ? { ...cliente, equipos: equipoEditando ? cliente.equipos.map((item) => item.id === equipo.id ? equipo : item) : [...cliente.equipos, equipo] } : cliente));
     setModal(null);
-    setAviso("Equipo agregado al perfil del cliente.");
+    setEquipoEditando(null);
+    setAviso(equipoEditando ? "Equipo actualizado." : "Equipo agregado al perfil del cliente.");
   }
+
+  function abrirNuevoEquipo() { setEquipoEditando(null); setModal("equipo"); }
+  function abrirEdicionEquipo(equipo: Dispositivo) { setEquipoEditando(equipo); setModal("equipo"); }
 
   return <div className="space-y-6">
     <PageHeading eyebrow="Relaciones" title="Clientes y equipos" description="Consulta los datos de contacto, dispositivos e historial de servicio desde un solo lugar." action={<PrimaryButton type="button" onClick={() => setModal("cliente")}><Icon name="plus" className="size-4"/>Nuevo cliente</PrimaryButton>}/>
@@ -78,14 +91,14 @@ export function ClientesPanel({ tallerId, initialClientes = clientesIniciales }:
       <Panel className="overflow-hidden">
         {!seleccionado ? <EmptyState icon="users" title="Selecciona un cliente" description="Aquí verás sus equipos e historial."/> : <>
           <div className="border-b border-slate-200 p-5 dark:border-slate-800"><div className="flex items-start justify-between gap-3"><div className="flex min-w-0 items-center gap-3"><span className="grid size-11 shrink-0 place-items-center rounded-full bg-teal-100 font-bold text-teal-800 dark:bg-teal-500/15 dark:text-teal-300">{seleccionado.nombre.split(" ").map((part) => part[0]).slice(0,2).join("")}</span><div className="min-w-0"><h2 className="truncate font-bold text-slate-950 dark:text-white">{seleccionado.nombre}</h2><p className="text-xs text-slate-500">{seleccionado.ordenes} órdenes · Última visita {seleccionado.ultimaVisita ?? "—"}</p></div></div><button type="button" aria-label="Editar cliente" className="rounded-lg p-2 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800"><Icon name="edit" className="size-4"/></button></div><dl className="mt-4 grid gap-2 text-sm"><div className="flex items-center gap-2 text-slate-600 dark:text-slate-300"><Icon name="phone" className="size-4 text-slate-400"/><span>{seleccionado.telefono}</span></div><div className="flex items-center gap-2 text-slate-600 dark:text-slate-300"><Icon name="mail" className="size-4 text-slate-400"/><span className="truncate">{seleccionado.correo || "Sin correo registrado"}</span></div></dl></div>
-          <div className="p-5"><div className="flex items-center justify-between"><h3 className="text-sm font-bold text-slate-900 dark:text-white">Equipos</h3><button type="button" onClick={() => setModal("equipo")} className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 hover:text-teal-800 dark:text-teal-400"><Icon name="plus" className="size-3.5"/>Agregar</button></div>{seleccionado.equipos.length === 0 ? <p className="mt-3 rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-500 dark:bg-slate-800/60">Aún no hay equipos registrados.</p> : <div className="mt-3 space-y-2">{seleccionado.equipos.map((equipo) => <article key={equipo.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"><Icon name="device" className="size-4"/></span><div className="min-w-0"><p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{equipo.marca} {equipo.modelo}</p><p className="truncate text-xs text-slate-500">{equipo.tipo}{equipo.alias && ` · ${equipo.alias}`}{equipo.serie && ` · S/N ${equipo.serie}`}</p></div></article>)}</div>}</div>
-          <div className="border-t border-slate-200 p-5 dark:border-slate-800"><h3 className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white"><Icon name="history" className="size-4 text-slate-400"/>Historial reciente</h3><div className="mt-3 space-y-3">{historial.slice(0, seleccionado.ordenes ? 3 : 0).map((orden) => <div key={orden.id} className="flex items-center justify-between gap-3 text-sm"><div><p className="font-semibold text-slate-800 dark:text-slate-100">{orden.numero} · {orden.dispositivo}</p><p className="text-xs text-slate-500">{orden.fecha}</p></div><span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{estadoLabel[orden.estado]}</span></div>)}{seleccionado.ordenes === 0 && <p className="text-sm text-slate-500">Este cliente todavía no tiene órdenes.</p>}</div></div>
+          <div className="p-5"><div className="flex items-center justify-between"><h3 className="text-sm font-bold text-slate-900 dark:text-white">Equipos</h3><button type="button" onClick={abrirNuevoEquipo} className="inline-flex items-center gap-1 text-xs font-semibold text-teal-700 hover:text-teal-800 dark:text-teal-400"><Icon name="plus" className="size-3.5"/>Agregar</button></div>{seleccionado.equipos.length === 0 ? <p className="mt-3 rounded-xl bg-slate-50 p-4 text-center text-sm text-slate-500 dark:bg-slate-800/60">Aún no hay equipos registrados.</p> : <div className="mt-3 space-y-2">{seleccionado.equipos.map((equipo) => <article key={equipo.id} className="flex items-center gap-3 rounded-xl border border-slate-200 p-3 dark:border-slate-700"><span className="grid size-9 shrink-0 place-items-center rounded-lg bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"><Icon name="device" className="size-4"/></span><div className="min-w-0 flex-1"><p className="truncate text-sm font-semibold text-slate-900 dark:text-white">{equipo.marca} {equipo.modelo}</p><p className="truncate text-xs text-slate-500">{equipo.tipo}{equipo.alias && ` · ${equipo.alias}`}{equipo.serie && ` · S/N ${equipo.serie}`}</p></div><button type="button" onClick={() => abrirEdicionEquipo(equipo)} className="rounded-lg p-2 text-slate-400 hover:bg-slate-100 hover:text-teal-700" aria-label={`Editar ${equipo.marca} ${equipo.modelo}`}><Icon name="edit" className="size-4"/></button></article>)}</div>}</div>
+          <div className="border-t border-slate-200 p-5 dark:border-slate-800"><h3 className="flex items-center gap-2 text-sm font-bold text-slate-900 dark:text-white"><Icon name="history" className="size-4 text-slate-400"/>Historial reciente</h3><div className="mt-3 space-y-3">{historialVisible.slice(0, seleccionado.ordenes ? 3 : 0).map((orden) => <div key={orden.id} className="flex items-center justify-between gap-3 text-sm"><div><p className="font-semibold text-slate-800 dark:text-slate-100">{orden.numero} · {orden.dispositivo}</p><p className="text-xs text-slate-500">{orden.fecha}</p></div><span className="rounded-full bg-slate-100 px-2 py-1 text-[11px] font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{estadoLabel[orden.estado]}</span></div>)}{(tallerId !== "demo" || seleccionado.ordenes === 0) && <p className="text-sm text-slate-500">Este cliente todavía no tiene órdenes.</p>}</div></div>
         </>}
       </Panel>
     </div>
 
     {modal === "cliente" && <Modal title="Nuevo cliente" description="Los campos marcados son necesarios para crear el perfil." onClose={() => setModal(null)}><form onSubmit={crearCliente} className="space-y-4"><label className={labelClass}>Nombre o razón social *<input className={fieldClass} name="nombre" required autoFocus placeholder="Ej. Isabella G"/></label><div className="grid gap-4 sm:grid-cols-2"><label className={labelClass}>Documento<input className={fieldClass} name="documento" placeholder="Cédula o NIT"/></label><label className={labelClass}>Teléfono *<input className={fieldClass} name="telefono" type="tel" required placeholder="+57 300 000 0000"/></label></div><label className={labelClass}>Correo electrónico<input className={fieldClass} name="correo" type="email" placeholder="cliente@correo.com"/></label><div className="flex justify-end gap-2 pt-2"><SecondaryButton type="button" onClick={() => setModal(null)}>Cancelar</SecondaryButton><PrimaryButton type="submit">Guardar cliente</PrimaryButton></div></form></Modal>}
-    {modal === "equipo" && seleccionado && <Modal title="Agregar equipo" description={`Quedará asociado a ${seleccionado.nombre}.`} onClose={() => setModal(null)}><form onSubmit={crearEquipo} className="space-y-4"><div className="grid gap-4 sm:grid-cols-2"><label className={labelClass}>Tipo *<select className={fieldClass} name="tipo" required defaultValue=""><option value="" disabled>Seleccionar</option><option>Celular</option><option>Portátil</option><option>Tablet</option><option>Consola</option><option>Otro</option></select></label><label className={labelClass}>Marca *<input className={fieldClass} name="marca" required placeholder="Ej. Samsung"/></label></div><label className={labelClass}>Modelo *<input className={fieldClass} name="modelo" required placeholder="Ej. Galaxy S24"/></label><div className="grid gap-4 sm:grid-cols-2"><label className={labelClass}>Número de serie<input className={fieldClass} name="serie"/></label><label className={labelClass}>Alias<input className={fieldClass} name="alias" placeholder="Ej. Equipo de trabajo"/></label></div><div className="flex justify-end gap-2 pt-2"><SecondaryButton type="button" onClick={() => setModal(null)}>Cancelar</SecondaryButton><PrimaryButton type="submit">Agregar equipo</PrimaryButton></div></form></Modal>}
+    {modal === "equipo" && seleccionado && <Modal title={equipoEditando ? "Editar equipo" : "Agregar equipo"} description={`Quedará asociado a ${seleccionado.nombre}.`} onClose={() => { setModal(null); setEquipoEditando(null); }}><form onSubmit={guardarEquipo} className="space-y-4"><label className={labelClass}>Modelo *<select className={fieldClass} name="modelo_id" required defaultValue={equipoEditando?.modeloId ?? ""}><option value="" disabled>Seleccionar modelo</option>{modelosFormulario.map((modelo) => <option key={modelo.id} value={modelo.id}>{modelo.marca} {modelo.nombre} · {modelo.tipo}</option>)}{equipoEditando && !modelosFormulario.some((modelo) => modelo.id === equipoEditando.modeloId) && <option value={equipoEditando.modeloId}>Modelo actual</option>}</select></label><div className="grid gap-4 sm:grid-cols-2"><label className={labelClass}>Número de serie<input className={fieldClass} name="serie" defaultValue={equipoEditando?.serie ?? ""}/></label><label className={labelClass}>Alias<input className={fieldClass} name="alias" defaultValue={equipoEditando?.alias ?? ""} placeholder="Ej. Equipo de trabajo"/></label></div><div className="flex justify-end gap-2 pt-2"><SecondaryButton type="button" onClick={() => { setModal(null); setEquipoEditando(null); }}>Cancelar</SecondaryButton><PrimaryButton type="submit">{equipoEditando ? "Guardar cambios" : "Agregar equipo"}</PrimaryButton></div></form></Modal>}
     <p className="sr-only">Taller activo: {tallerId}</p>
   </div>;
 }
