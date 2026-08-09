@@ -5,7 +5,8 @@ import type { RolTaller } from "./types";
 import { Icon, PageHeading, Panel, PrimaryButton, SecondaryButton, fieldClass, labelClass } from "./ui";
 
 type Seccion = "taller" | "catalogos" | "pagos" | "miembros";
-type Catalogo = { titulo: string; descripcion: string; valores: string[] };
+export type Catalogo = { titulo: string; descripcion: string; valores: string[] };
+export type MetodoGestion = { id: string; nombre: string; activo: boolean };
 
 const secciones: { id: Seccion; label: string; icon: "store" | "tag" | "card" | "shield" }[] = [
   { id: "taller", label: "Datos del taller", icon: "store" },
@@ -20,11 +21,11 @@ const catalogosIniciales: Catalogo[] = [
   { titulo: "Tipos de servicio", descripcion: "Servicios reutilizables al cotizar una orden.", valores: ["Diagnóstico", "Cambio de pantalla", "Mantenimiento", "Recuperación de datos"] },
 ];
 
-export function ConfiguracionPanel({ tallerId, rolActual = "dueno" }: { tallerId: string; rolActual?: RolTaller }) {
+export function ConfiguracionPanel({ tallerId, rolActual = "dueno", initialCatalogos = catalogosIniciales, initialMetodos }: { tallerId: string; rolActual?: RolTaller; initialCatalogos?: Catalogo[]; initialMetodos?: MetodoGestion[] }) {
   const esDueno = rolActual === "dueno";
   const [seccion, setSeccion] = useState<Seccion>("taller");
-  const [catalogos, setCatalogos] = useState(catalogosIniciales);
-  const [metodos, setMetodos] = useState([{ id: "m1", nombre: "Efectivo", activo: true }, { id: "m2", nombre: "Transferencia bancaria", activo: true }, { id: "m3", nombre: "Tarjeta", activo: true }, { id: "m4", nombre: "Crédito interno", activo: false }]);
+  const [catalogos, setCatalogos] = useState(initialCatalogos);
+  const [metodos, setMetodos] = useState<MetodoGestion[]>(initialMetodos ?? [{ id: "m1", nombre: "Efectivo", activo: true }, { id: "m2", nombre: "Transferencia bancaria", activo: true }, { id: "m3", nombre: "Tarjeta", activo: true }, { id: "m4", nombre: "Crédito interno", activo: false }]);
   const [aviso, setAviso] = useState("");
 
   function guardar(event: FormEvent<HTMLFormElement>) { event.preventDefault(); setAviso("Cambios guardados correctamente."); }
@@ -41,4 +42,3 @@ export function ConfiguracionPanel({ tallerId, rolActual = "dueno" }: { tallerId
         {seccion === "miembros" && esDueno && <Panel><div className="flex flex-col gap-3 border-b border-slate-200 p-5 dark:border-slate-800 sm:flex-row sm:items-start sm:justify-between"><div><h2 className="font-bold text-slate-950 dark:text-white">Miembros y roles</h2><p className="mt-1 text-sm text-slate-500">Solo los dueños pueden invitar personas o cambiar sus roles.</p></div><PrimaryButton><Icon name="plus" className="size-4"/>Invitar miembro</PrimaryButton></div><div className="divide-y divide-slate-100 dark:divide-slate-800">{[{ nombre: "Isabella G", correo: "Isabella@tallercentral.co", rol: "Dueño", iniciales: "IG", actual: true }, { nombre: "Mateo Rodríguez", correo: "mateo@tallercentral.co", rol: "Técnico", iniciales: "MR" }, { nombre: "Isabella Castro", correo: "isabella.castro@tallercentral.co", rol: "Técnico", iniciales: "IC" }].map((miembro) => <div key={miembro.correo} className="flex flex-col gap-3 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"><div className="flex items-center gap-3"><span className="grid size-10 place-items-center rounded-full bg-teal-100 text-sm font-bold text-teal-800 dark:bg-teal-500/15 dark:text-teal-300">{miembro.iniciales}</span><div><p className="font-semibold text-slate-900 dark:text-white">{miembro.nombre}{miembro.actual && <span className="ml-2 text-xs font-normal text-slate-400">Tú</span>}</p><p className="text-xs text-slate-500">{miembro.correo}</p></div></div><div className="flex items-center gap-2"><span className="rounded-full bg-slate-100 px-2.5 py-1 text-xs font-semibold text-slate-600 dark:bg-slate-800 dark:text-slate-300">{miembro.rol}</span>{!miembro.actual && <button type="button" aria-label={`Opciones de ${miembro.nombre}`} className="rounded-lg px-2 py-1 text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800">•••</button>}</div></div>)}</div></Panel>}
       </div></div><p className="sr-only">Configuración del taller {tallerId}. Rol actual: {rolActual}.</p></div>;
 }
-
