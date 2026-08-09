@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import type { Cliente, Dispositivo, OrdenBreve } from "./types";
 import { EmptyState, Icon, Modal, PageHeading, Panel, PrimaryButton, SearchField, SecondaryButton, fieldClass, labelClass } from "./ui";
+import { crearClienteReal } from "@/app/gestion-actions";
 
 const clientesIniciales: Cliente[] = [
   { id: "cli-1", nombre: "Isabella Ríos", documento: "1032456789", telefono: "+57 301 555 0184", correo: "Isabella.rios@email.com", activo: true, ordenes: 4, ultimaVisita: "5 ago 2026", equipos: [{ id: "eq-1", tipo: "Celular", marca: "Apple", modelo: "iPhone 14", serie: "F2LX92K1", alias: "Personal" }, { id: "eq-2", tipo: "Portátil", marca: "Lenovo", modelo: "ThinkPad E14", serie: "PF4K91D2" }] },
@@ -33,10 +34,14 @@ export function ClientesPanel({ tallerId, initialClientes = clientesIniciales }:
   }), [clientes, consulta, soloActivos]);
   const seleccionado = clientes.find((cliente) => cliente.id === seleccionadoId);
 
-  function crearCliente(event: FormEvent<HTMLFormElement>) {
+  async function crearCliente(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const data = new FormData(event.currentTarget);
-    const nuevo: Cliente = { id: `cli-${Date.now()}`, nombre: String(data.get("nombre")), documento: String(data.get("documento") || ""), telefono: String(data.get("telefono")), correo: String(data.get("correo") || ""), activo: true, ordenes: 0, equipos: [] };
+    const nombre = String(data.get("nombre"));
+    const telefono = String(data.get("telefono") || "");
+    const correo = String(data.get("correo") || "");
+    const remoto = tallerId === "demo" ? null : await crearClienteReal(tallerId, { nombre, telefono: telefono || null, correo: correo || null });
+    const nuevo: Cliente = { id: remoto?.id ?? `cli-${Date.now()}`, nombre: remoto?.nombre ?? nombre, documento: String(data.get("documento") || ""), telefono: remoto?.telefono ?? telefono, correo: remoto?.correo ?? correo, activo: true, ordenes: 0, equipos: [] };
     setClientes((actuales) => [nuevo, ...actuales]);
     setSeleccionadoId(nuevo.id);
     setModal(null);

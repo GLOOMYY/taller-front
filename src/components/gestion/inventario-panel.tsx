@@ -3,6 +3,7 @@
 import { FormEvent, useMemo, useState } from "react";
 import type { MovimientoInventario, Repuesto } from "./types";
 import { EmptyState, Icon, Modal, PageHeading, Panel, PrimaryButton, SearchField, SecondaryButton, Stat, fieldClass, labelClass } from "./ui";
+import { crearRepuestoReal, registrarAjusteReal, registrarEntradaReal } from "@/app/gestion-actions";
 
 const repuestosIniciales: Repuesto[] = [
   { id: "rep-1", sku: "BAT-IP14", nombre: "Batería compatible iPhone 14", categoria: "Baterías", existencia: 3, minimo: 4, unidad: "unidad", ubicacion: "A-03", activo: true },
@@ -30,15 +31,21 @@ export function InventarioPanel({ tallerId, initialRepuestos = repuestosIniciale
   const bajoMinimo = activos.filter((item) => item.existencia <= item.minimo);
   const filtrados = useMemo(() => repuestos.filter((item) => `${item.sku} ${item.nombre} ${item.categoria}`.toLowerCase().includes(consulta.toLowerCase())), [repuestos, consulta]);
 
-  function crearRepuesto(event: FormEvent<HTMLFormElement>) {
+  async function crearRepuesto(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const data = new FormData(event.currentTarget);
-    const nuevo: Repuesto = { id: `rep-${Date.now()}`, sku: String(data.get("sku")), nombre: String(data.get("nombre")), categoria: String(data.get("categoria")), existencia: Number(data.get("existencia")), minimo: Number(data.get("minimo")), unidad: String(data.get("unidad")), ubicacion: String(data.get("ubicacion") || ""), activo: true };
+    const sku = String(data.get("sku")); const nombre = String(data.get("nombre")); const categoria = String(data.get("categoria"));
+    const remoto = tallerId === "demo" ? null : await crearRepuestoReal(tallerId, { codigo: sku || null, nombre, descripcion: categoria || null, precio_venta: "0" });
+    const nuevo: Repuesto = { id: remoto?.id ?? `rep-${Date.now()}`, sku: remoto?.codigo ?? sku, nombre: remoto?.nombre ?? nombre, categoria, existencia: remoto?.existencia ?? Number(data.get("existencia")), minimo: Number(data.get("minimo")), unidad: String(data.get("unidad")), ubicacion: String(data.get("ubicacion") || ""), activo: remoto?.activo ?? true };
     setRepuestos((items) => [nuevo, ...items]); setModal(null); setAviso("Repuesto creado y disponible para nuevas órdenes.");
   }
 
-  function registrarMovimiento(event: FormEvent<HTMLFormElement>) {
+  async function registrarMovimiento(event: FormEvent<HTMLFormElement>) {
     event.preventDefault(); const data = new FormData(event.currentTarget); const repuestoId = String(data.get("repuesto")); const tipo = String(data.get("tipo")) as MovimientoInventario["tipo"]; const valor = Number(data.get("cantidad")); const cantidad = tipo === "salida" ? -Math.abs(valor) : valor;
     const repuesto = repuestos.find((item) => item.id === repuestoId); if (!repuesto) return;
+    if (tallerId !== "demo") {
+      if (tipo === "entrada") await registrarEntradaReal(tallerId, repuestoId, { cantidad: Math.abs(valor), costo_unitario: "0", nota: String(data.get("referencia") || "") || null });
+      else await registrarAjusteReal(tallerId, repuestoId, { delta: cantidad, motivo: String(data.get("referencia") || "Ajuste") });
+    }
     setRepuestos((items) => items.map((item) => item.id === repuestoId ? { ...item, existencia: Math.max(0, item.existencia + cantidad) } : item));
     setMovimientos((items) => [{ id: `mov-${Date.now()}`, fecha: "Ahora", repuesto: repuesto.nombre, tipo, cantidad, referencia: String(data.get("referencia")), responsable: "Sesión actual" }, ...items]);
     setModal(null); setAviso("Movimiento registrado. La existencia fue actualizada.");
@@ -57,4 +64,3 @@ export function InventarioPanel({ tallerId, initialRepuestos = repuestosIniciale
     <p className="sr-only">Taller activo: {tallerId}</p>
   </div>;
 }
-
